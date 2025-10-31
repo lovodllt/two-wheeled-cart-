@@ -23,7 +23,8 @@ def generate_launch_description():
             actions=[
                 ExecuteProcess(
                     cmd=['ros2', 'run', 'ros_gz_sim', 'create',
-                         '-file', urdf_path, '-name', 'two_wheeled_robot'],
+                         '-file', urdf_path, '-name', 'two_wheeled_robot'
+                        '-x', '0', '-y', '0', '-z', '0.5',],
                     output='screen'
                 ),
             ]
