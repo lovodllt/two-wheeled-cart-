@@ -1,0 +1,4 @@
+  gazebo_topic_name: "/cmd_vel"
+  ros_topic_name: "/cmd_vel"
+  message_type: "geometry_msgs/msg/Twist"
+  direction: BIDIRECTIONAL
