@@ -1,32 +1,42 @@
 import os
-from launch import LaunchDescription
-from launch.actions import ExecuteProcess, TimerAction
 from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import  LaunchConfiguration, PathJoinSubstitution, TextSubstitution
+
 
 def generate_launch_description():
-    # 获取包目录
-    pkg_path = get_package_share_directory('two_wheeled_cart')
 
-    # 文件路径
-    urdf_file = os.path.join(pkg_path, 'urdf', 'two_wheel_cart.urdf')
-    world_file = os.path.join(pkg_path, 'worlds', 'indoor.world')
-
-    # 启动 Gazebo
-    gazebo_process = ExecuteProcess(
-        cmd=['gz', 'sim', '-r', world_file],
-        output='screen'
+    world_arg = DeclareLaunchArgument(
+        'world', default_value='indoor.world',
+        description='Name of the Gazebo world file to load'
     )
 
-    # 在 Gazebo 中生成机器人（延迟执行）
-    spawn_robot = ExecuteProcess(
-        cmd=[
-            'bash', '-c',
-            f'sleep 5 && gz service -s /world/my_apartment/create --reqtype gz.msgs.EntityFactory --reptype gz.msgs.Boolean --timeout 3000 --req "pose: {{position: {{x: 0, y: 0, z: 0.5}}}}, sdf_filename: \\"{urdf_file}\\", name: \\"two_wheel_cart\\""'
-        ],
-        output='screen'
+    pkg_bme_gazebo_basics = get_package_share_directory('two_wheeled_cart')
+    pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
+
+    os.environ["GZ_SIM_RESOURCE_PATH"] += os.pathsep
+
+
+    gazebo_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py'),
+        ),
+        launch_arguments={'gz_args': [PathJoinSubstitution([
+            pkg_bme_gazebo_basics,
+            'worlds',
+            LaunchConfiguration('world')
+        ]),
+            #TextSubstitution(text=' -r -v -v1 --render-engine ogre')],
+            TextSubstitution(text=' -r -v -v1')],
+            'on_exit_shutdown': 'true'}.items()
     )
 
-    return LaunchDescription([
-        gazebo_process,
-        spawn_robot,
-    ])
+
+    launchDescriptionObject = LaunchDescription()
+
+    launchDescriptionObject.add_action(world_arg)
+    launchDescriptionObject.add_action(gazebo_launch)
+
+    return launchDescriptionObject

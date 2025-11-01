@@ -23,5 +23,30 @@ install(DIRECTORY worlds
 install(DIRECTORY config
         DESTINATION share/${PROJECT_NAME}
 )
+# 查找依赖
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(std_msgs REQUIRED)
+
+
+# 编译完整控制器
+add_executable(diff_drive_controller src/diff_drive_controller.cpp
+)
+ament_target_dependencies(diff_drive_controller
+        rclcpp
+        geometry_msgs
+        nav_msgs
+        tf2_ros
+        std_msgs
+)
+
+# 安装
+install(TARGETS
+        diff_drive_controller
+        DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_package()

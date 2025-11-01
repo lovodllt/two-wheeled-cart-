@@ -13,6 +13,10 @@
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
 
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf2_ros</depend>
+
   <!-- Gazebo 相关 -->
   <depend>gazebo_ros</depend>
 
