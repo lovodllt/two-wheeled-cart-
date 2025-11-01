@@ -33,19 +33,8 @@ find_package(std_msgs REQUIRED)
 
 
 # 编译完整控制器
-add_executable(diff_drive_controller src/diff_drive_controller.cpp
-)
-ament_target_dependencies(diff_drive_controller
-        rclcpp
-        geometry_msgs
-        nav_msgs
-        tf2_ros
-        std_msgs
-)
-
 # 安装
 install(TARGETS
-        diff_drive_controller
         DESTINATION lib/${PROJECT_NAME}
 )
 

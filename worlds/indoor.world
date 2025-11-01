@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
-<sdf version="1.9">
+<sdf version="1.6">
   <world name="my_apartment">
 
-    <!-- 环境光照（手动创建太阳光） -->
+    <!-- 环境光照 -->
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
@@ -22,11 +22,10 @@
       <ambient>0.4 0.4 0.4 1</ambient>
       <background>0.7 0.7 0.7 1</background>
       <shadows>true</shadows>
-      <grid>false</grid>
     </scene>
 
     <!-- 物理引擎 -->
-    <physics name="default_physics" default="true" type="ode">
+    <physics type="ode">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>1000</real_time_update_rate>
@@ -35,7 +34,7 @@
 
     <!-- ========== 自定义模型 ========== -->
 
-    <!-- 地面 (固定) -->
+    <!-- 地面 -->
     <model name="floor">
       <static>true</static>
       <link name="floor_link">
@@ -61,15 +60,16 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.6 0.6 0.6 1</ambient>
-            <diffuse>0.8 0.8 0.8 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- 墙壁 (固定) -->
+    <!-- 墙壁 -->
     <model name="wall_north">
       <static>true</static>
       <pose>0 4.5 1 0 0 0</pose>
@@ -88,9 +88,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.9 0.9 0.9 1</ambient>
-            <diffuse>0.95 0.95 0.95 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/White</name>
+            </script>
           </material>
         </visual>
       </link>
@@ -114,9 +115,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.9 0.9 0.9 1</ambient>
-            <diffuse>0.95 0.95 0.95 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/White</name>
+            </script>
           </material>
         </visual>
       </link>
@@ -140,9 +142,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.9 0.9 0.9 1</ambient>
-            <diffuse>0.95 0.95 0.95 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/White</name>
+            </script>
           </material>
         </visual>
       </link>
@@ -166,9 +169,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.9 0.9 0.9 1</ambient>
-            <diffuse>0.95 0.95 0.95 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/White</name>
+            </script>
           </material>
         </visual>
       </link>
@@ -196,9 +200,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <!-- 桌腿 -->
@@ -218,9 +223,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <collision name="leg2_collision">
@@ -239,9 +245,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <collision name="leg3_collision">
@@ -260,9 +267,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <collision name="leg4_collision">
@@ -281,9 +289,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
       </link>
@@ -311,9 +320,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <!-- 椅背 -->
@@ -333,9 +343,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <!-- 椅腿 -->
@@ -355,9 +366,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <collision name="leg2_collision">
@@ -376,9 +388,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <collision name="leg3_collision">
@@ -397,9 +410,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
         <collision name="leg4_collision">
@@ -418,9 +432,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.55 0.27 0.07 1</ambient>
-            <diffuse>0.65 0.37 0.17 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
           </material>
         </visual>
       </link>
@@ -448,9 +463,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.8 0.1 0.1 1</ambient>
-            <diffuse>0.9 0.2 0.2 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Red</name>
+            </script>
           </material>
         </visual>
         <!-- 靠背 -->
@@ -470,12 +486,13 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.8 0.1 0.1 1</ambient>
-            <diffuse>0.9 0.2 0.2 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Red</name>
+            </script>
           </material>
         </visual>
-        <!-- 扶手1 -->
+        <!-- 扶手 -->
         <collision name="arm1_collision">
           <pose>-0.55 0 0.4 0 0 0</pose>
           <geometry>
@@ -492,12 +509,12 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.8 0.1 0.1 1</ambient>
-            <diffuse>0.9 0.2 0.2 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Red</name>
+            </script>
           </material>
         </visual>
-        <!-- 扶手2 -->
         <collision name="arm2_collision">
           <pose>0.55 0 0.4 0 0 0</pose>
           <geometry>
@@ -514,9 +531,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.8 0.1 0.1 1</ambient>
-            <diffuse>0.9 0.2 0.2 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Red</name>
+            </script>
           </material>
         </visual>
       </link>
@@ -541,9 +559,10 @@
             </box>
           </geometry>
           <material>
-            <ambient>0.3 0.3 0.3 1</ambient>
-            <diffuse>0.4 0.4 0.4 1</diffuse>
-            <specular>0.1 0.1 0.1 1</specular>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkGrey</name>
+            </script>
           </material>
         </visual>
       </link>
