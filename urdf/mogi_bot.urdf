@@ -141,6 +141,8 @@
     <gazebo>
         <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
             <parameters>$(find two_wheeled_cart)/config/controller.yaml</parameters>
+            <controller_manager_node_name>controller_manager</controller_manager_node_name>
+            <robot_param>robot_description</robot_param>
         </plugin>
     </gazebo>
 

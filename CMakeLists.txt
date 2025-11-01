@@ -30,6 +30,11 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(gazebo_ros REQUIRED)
+find_package(gazebo_ros2_control REQUIRED)
+find_package(controller_manager REQUIRED)
+find_package(joint_state_broadcaster REQUIRED)
+find_package(diff_drive_controller REQUIRED)
 
 
 # 编译完整控制器

@@ -19,8 +19,8 @@
 
   <!-- Gazebo 相关 -->
   <depend>gazebo_ros</depend>
-
-  <!-- URDF 相关 -->
+  <depend>gazebo_ros2_control</depend>
+  <depend>controller_manager</depend>
   <depend>robot_state_publisher</depend>
   <depend>joint_state_publisher</depend>
 
