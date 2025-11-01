@@ -7,4 +7,4 @@
 
     colcon build
     source install/setup.bash
-    ros2 launch twc world.launch.py
+    ros2 launch two_wheeled_cart world.launch.py

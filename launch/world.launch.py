@@ -1,85 +1,32 @@
 import os
 from launch import LaunchDescription
-from launch_ros.actions import Node
 from launch.actions import ExecuteProcess, TimerAction
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-    pkg_twc = get_package_share_directory('twc')
-    world_path = os.path.join(pkg_twc, 'worlds', 'indoor.world')
-    urdf_path = os.path.join(pkg_twc, 'urdf', 'two_wheel_cart.urdf')
+    # 获取包目录
+    pkg_path = get_package_share_directory('two_wheeled_cart')
 
-    with open(urdf_path, 'r') as f:
-        robot_description = f.read()
+    # 文件路径
+    urdf_file = os.path.join(pkg_path, 'urdf', 'two_wheel_cart.urdf')
+    world_file = os.path.join(pkg_path, 'worlds', 'indoor.world')
+
+    # 启动 Gazebo
+    gazebo_process = ExecuteProcess(
+        cmd=['gz', 'sim', '-r', world_file],
+        output='screen'
+    )
+
+    # 在 Gazebo 中生成机器人（延迟执行）
+    spawn_robot = ExecuteProcess(
+        cmd=[
+            'bash', '-c',
+            f'sleep 5 && gz service -s /world/my_apartment/create --reqtype gz.msgs.EntityFactory --reptype gz.msgs.Boolean --timeout 3000 --req "pose: {{position: {{x: 0, y: 0, z: 0.5}}}}, sdf_filename: \\"{urdf_file}\\", name: \\"two_wheel_cart\\""'
+        ],
+        output='screen'
+    )
 
     return LaunchDescription([
-        ExecuteProcess(
-            cmd=['gz', 'sim', world_path],
-            output='screen'
-        ),
-
-        TimerAction(
-            period=5.0,
-            actions=[
-                ExecuteProcess(
-                    cmd=['ros2', 'run', 'ros_gz_sim', 'create',
-                         '-file', urdf_path, '-name', 'two_wheeled_robot'
-                        '-x', '0', '-y', '0', '-z', '0.5',],
-                    output='screen'
-                ),
-            ]
-        ),
-
-        TimerAction(
-            period=7.0,
-            actions=[
-                Node(
-                    package='controller_manager',
-                    executable='ros2_control_node',
-                    parameters=[{
-                        'use_sim_time': True,
-                        'robot_description': robot_description
-                    }],
-                    output='screen',
-                    name='controller_manager'
-                ),
-            ]
-        ),
-
-        TimerAction(
-            period=9.0,
-            actions=[
-                Node(
-                    package='robot_state_publisher',
-                    executable='robot_state_publisher',
-                    name='robot_state_publisher',
-                    parameters=[{
-                        'use_sim_time': True,
-                        'robot_description': robot_description
-                    }],
-                    output='screen'
-                ),
-            ]
-        ),
-
-        TimerAction(
-            period=11.0,
-            actions=[
-                ExecuteProcess(
-                    cmd=['ros2', 'control', 'load_controller', 'joint_state_controller'],
-                    output='screen'
-                ),
-            ]
-        ),
-
-        TimerAction(
-            period=13.0,
-            actions=[
-                ExecuteProcess(
-                    cmd=['ros2', 'control', 'set_controller_state',
-                         'joint_state_controller', 'active'],
-                    output='screen'
-                ),
-            ]
-        ),
+        gazebo_process,
+        spawn_robot,
     ])
