@@ -624,5 +624,9 @@
       </link>
     </model>
 
+
+    <plugin name="gazebo_ros" filename="libgazebo_ros_init.so"/>
+    <plugin name="gazebo_ros" filename="libgazebo_ros_factory.so"/>
+
   </world>
 </sdf>
