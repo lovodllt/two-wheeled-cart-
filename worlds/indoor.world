@@ -47,8 +47,10 @@
           <surface>
             <friction>
               <ode>
-                <mu>100</mu>
-                <mu2>50</mu2>
+                <mu>1</mu>
+                <mu2>0.8</mu2>
+                <slip1>0.01</slip1>
+                <slip2>0.01</slip2>
               </ode>
             </friction>
           </surface>
@@ -181,7 +183,7 @@
                       <pose>0 0 0 0 0 0</pose>  <!-- 位于墙的中心 -->
                       <geometry>
                         <box>
-                          <size>0.5 0.21 0.5</size>  <!-- 比墙略厚一点，确保可见 -->
+                          <size>0.21 0.5 0.5</size>  <!-- 比墙略厚一点，确保可见 -->
                         </box>
                       </geometry>
                       <material>
@@ -222,7 +224,7 @@
                       <pose>0 0 0 0 0 0</pose>  <!-- 位于墙的中心 -->
                       <geometry>
                         <box>
-                          <size>0.5 0.21 0.5</size>  <!-- 比墙略厚一点，确保可见 -->
+                          <size>0.21 0.5 0.5</size>  <!-- 比墙略厚一点，确保可见 -->
                         </box>
                       </geometry>
                       <material>
@@ -237,7 +239,7 @@
     <!-- 桌子 -->
     <model name="table">
       <static>true</static>
-      <pose>1 0 0.4 0 0 0</pose>
+      <pose>1 0 0 0 0 0</pose>
       <link name="table_link">
         <!-- 桌面 -->
         <collision name="tabletop_collision">
@@ -500,7 +502,7 @@
     <!-- 沙发 -->
     <model name="sofa">
       <static>true</static>
-      <pose>-2 -1 0.3 0 0 1.57</pose>
+      <pose>-2 -1 -0.2 0 0 1.57</pose>
       <link name="sofa_link">
         <!-- 座位 -->
         <collision name="seat_collision">

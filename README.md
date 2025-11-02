@@ -15,5 +15,9 @@
     colcon build
     source install/setup.bash
     ros2 launch two_wheeled_cart loader.launch.py
-
+    
+    sudo apt install ros-humble-teleop-twist-keyboard
+    // 安装键盘控制包
+    ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/simple_diff_drive_controller/cmd_vel
+    //使用这个可以指定键盘控制话题发布，使用键盘控制机器人（另开终端
 

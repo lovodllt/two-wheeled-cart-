@@ -85,14 +85,31 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster", "-c", "/controller_manager"],
         output="screen",
     )
-
-    # 差速驱动控制器
+    # 简单差速控制器
     diff_drive_controller = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["diff_drive_controller", "-c", "/controller_manager"],
+        arguments=["simple_diff_drive_controller", "-c", "/controller_manager"],
         output="screen",
     )
+
+    camera = Node(
+        package='yellow_object_detector',
+        executable='contour_pose_node',
+        name='contour_pose_node',
+        output='screen',
+        parameters=[{
+            'physical_width': 0.5,
+            'physical_height': 0.5,
+            'h_min': 20,
+            'h_max': 40,
+            's_min': 100,
+            's_max': 255,
+            'v_min': 100,
+            'v_max': 255
+        }]
+    )
+
 
     # 事件处理器：URDF 生成完成后启动其他节点
     after_generate_urdf = RegisterEventHandler(
@@ -107,7 +124,11 @@ def generate_launch_description():
                 ),
                 TimerAction(
                     period=7.0,
-                    actions=[joint_state_broadcaster, diff_drive_controller]
+                    actions=[joint_state_broadcaster]
+                ),
+                TimerAction(
+                    period=8.0,
+                    actions=[diff_drive_controller]
                 )
             ]
         )
