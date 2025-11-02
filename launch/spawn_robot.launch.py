@@ -32,12 +32,12 @@ def generate_launch_description():
     )
 
     model_arg = DeclareLaunchArgument(
-        'model', default_value='mogi_bot.urdf',
+        'model', default_value='mogi_bot.urdf.xacro',
         description='Name of the URDF description to load'
     )
 
     # URDF 文件路径
-    urdf_file_path = os.path.join(pkg_bme_gazebo_basics, "urdf", "mogi_bot.urdf")
+    urdf_file_path = os.path.join(pkg_bme_gazebo_basics, "urdf", "mogi_bot.urdf.xacro")
 
     # 检查文件是否存在
     if not os.path.exists(urdf_file_path):
@@ -78,16 +78,6 @@ def generate_launch_description():
         }]
     )
 
-    # 控制器管理器节点
-    controller_manager_node = Node(
-        package='controller_manager',
-        executable='ros2_control_node',
-        parameters=[{
-            'robot_description': robot_description_content,
-            'use_sim_time': True
-        }],
-        output='screen'
-    )
 
     # RViz2 节点
     rviz_node = Node(
@@ -137,7 +127,6 @@ def generate_launch_description():
     # 添加节点
     launch_description.add_action(gazebo_launch)
     launch_description.add_action(robot_state_publisher_node)
-    launch_description.add_action(controller_manager_node)
     launch_description.add_action(rviz_node)
 
     # 延迟生成机器人实体
@@ -148,7 +137,7 @@ def generate_launch_description():
 
     # 延迟启动控制器
     launch_description.add_action(TimerAction(
-        period=8.0,
+        period=10.0,
         actions=[joint_state_broadcaster, diff_drive_controller]
     ))
 

@@ -16,6 +16,9 @@
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>tf2_ros</depend>
+  <depend>gazebo_plugins</depend>
+  <depend>ros2_control</depend>
+  <depend>ros2_controllers</depend>
 
   <!-- Gazebo 相关 -->
   <depend>gazebo_ros</depend>
