@@ -83,38 +83,18 @@ def generate_launch_description():
     joint_state_broadcaster1 = Node(
         package="controller_manager",
         executable="spawner",
-        namespace="robot1",
-        arguments=["joint_state_broadcaster", "-c", "controller_manager"],
+        arguments=["joint_state_broadcaster", "-c", "robot1/controller_manager"],
         output="screen",
     )
 
     diff_drive_controller1 = Node(
         package="controller_manager",
         executable="spawner",
-        namespace="robot1",
-        arguments=["simple_diff_drive_controller", "-c", "controller_manager"],
+        arguments=["simple_diff_drive_controller", "-c", "robot1/controller_manager"],
         output="screen",
     )
 
 
-    # 相机节点（可选，可以根据需要调整命名空间）
-    camera1 = Node(
-        package='yellow_object_detector',
-        executable='contour_pose_node',
-        name='contour_pose_node1',
-        namespace='robot1',
-        output='screen',
-        parameters=[{
-            'physical_width': 0.5,
-            'physical_height': 0.5,
-            'h_min': 20,
-            'h_max': 40,
-            's_min': 100,
-            's_max': 255,
-            'v_min': 100,
-            'v_max': 255
-        }]
-    )
 
     # 事件处理器：依次启动两个机器人
     after_generate_urdf1 = RegisterEventHandler(
@@ -139,23 +119,12 @@ def generate_launch_description():
             on_exit=[
                 TimerAction(
                     period=3.0,
-                    actions=[joint_state_broadcaster1]
+                    actions=[joint_state_broadcaster1,diff_drive_controller1]
                 )
             ]
         )
     )
 
-    after_joint_broadcaster1 = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster1,
-            on_exit=[
-                TimerAction(
-                    period=2.0,
-                    actions=[diff_drive_controller1]
-                )
-            ]
-        )
-    )
 
 
 
@@ -166,6 +135,5 @@ def generate_launch_description():
     launch_description.add_action(after_generate_urdf1)
 
     launch_description.add_action(after_spawn_robot1)
-    launch_description.add_action(after_joint_broadcaster1)
 
     return launch_description

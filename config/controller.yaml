@@ -3,19 +3,8 @@ robot1:
     ros__parameters:
       update_rate: 100
       use_sim_time: true
-
       joint_state_broadcaster:
         type: joint_state_broadcaster/JointStateBroadcaster
-
-      right_wheel_controller:
-        type: right_wheel_controller/RightWheelController
-        ros__parameters:
-          wheel_name: "right_wheel_joint"
-
-      simple_diff_drive_controller:
+      simple_diff_drive_controller: # 控制器名称（与插件注册一致）
         type: simple_diff_drive_controller/SimpleDiffDriveController
-        ros__parameters:
-          left_wheel_name: "left_wheel_joint"
-          right_wheel_name: "right_wheel_joint"
-          wheel_separation: 0.25
-          wheel_radius: 0.1
+
