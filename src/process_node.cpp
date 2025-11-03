@@ -9,244 +9,254 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
+#include <memory>
+#include <mutex>
+#include <chrono>
+
 class ContourPoseNode : public rclcpp::Node
 {
 public:
-  ContourPoseNode() : Node("contour_pose_node"), camera_info_received_(false), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
+  ContourPoseNode()
+  : Node("contour_pose_node"),
+    camera_info_received_(false),
+    tf_buffer_(this->get_clock()),
+    tf_listener_(tf_buffer_)
   {
-    this->declare_parameter("physical_width", 0.5);  // 物体的物理宽度（米）
-    this->declare_parameter("physical_height", 0.5); // 物体的物理高度（米）
+    // 声明参数
+    declare_parameter("physical_width", 0.5);
+    declare_parameter("physical_height", 0.5);
+    declare_parameter("h_min", 20);
+    declare_parameter("h_max", 40);
+    declare_parameter("s_min", 100);
+    declare_parameter("s_max", 255);
+    declare_parameter("v_min", 100);
+    declare_parameter("v_max", 255);
+    declare_parameter("world_frame", "base_link");
 
-    this->declare_parameter("h_min", 20);   
-    this->declare_parameter("h_max", 40);   
-    this->declare_parameter("s_min", 100); 
-    this->declare_parameter("s_max", 255);  
-    this->declare_parameter("v_min", 100);  
-    this->declare_parameter("v_max", 255);  
-    this->declare_parameter("world_frame", "odom"); // 世界坐标系名称
+    // 发布器
+    pose_pub_ = create_publisher<geometry_msgs::msg::PoseStamped>("/target_pose", 10);
 
-    image_transport::ImageTransport it(shared_from_this());
-    image_sub_ = it.subscribe("/mogi_bot/camera/image_raw", 1, &ContourPoseNode::image_callback, this);
-    camera_info_sub_ = this->create_subscription<sensor_msgs::msg::CameraInfo>(
-      "/mogi_bot/camera/camera_info", 10,
-      std::bind(&ContourPoseNode::camera_info_callback, this, std::placeholders::_1));
+    RCLCPP_INFO(get_logger(), "ContourPoseNode constructed. Call on_init() after shared_ptr.");
+  }
 
-    pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("/target_pose", 10);
-    debug_img_pub_ = it.advertise("/debug/yellow_detection", 1);
+  void on_init()
+  {
+    // 初始化 image_transport
+    it_ = std::make_unique<image_transport::ImageTransport>(shared_from_this());
 
-    RCLCPP_INFO(this->get_logger(), "Contour Pose Node started. Waiting for camera info and images...");
+    // 订阅
+    image_sub_ = it_->subscribe("/robot1/camera/image_raw", 1, &ContourPoseNode::image_callback, this);
+    camera_info_sub_ = create_subscription<sensor_msgs::msg::CameraInfo>(
+      "/robot1/camera/camera_info", 10,
+      [this](const sensor_msgs::msg::CameraInfo::SharedPtr msg) {
+        camera_info_callback(msg);
+      });
+
+    debug_img_pub_ = it_->advertise("/debug/yellow_detection", 1);
+
+    // 启动实时显示定时器（30 FPS）
+    display_timer_ = this->create_wall_timer(
+      std::chrono::milliseconds(33),
+      [this]() { display_thread(); }
+    );
+
+    // 创建窗口
+    cv::namedWindow("Yellow Detection [Realtime]", cv::WINDOW_AUTOSIZE);
+
+    RCLCPP_INFO(get_logger(), "ContourPoseNode fully initialized with real-time display.");
   }
 
 private:
   void camera_info_callback(const sensor_msgs::msg::CameraInfo::SharedPtr msg)
   {
-    if (camera_info_received_) {
-      return;
-    }
+    if (camera_info_received_) return;
 
     camera_matrix_ = cv::Mat(3, 3, CV_64F);
-    for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 3; ++j) {
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j)
         camera_matrix_.at<double>(i, j) = msg->k[i * 3 + j];
-      }
-    }
 
     dist_coeffs_ = cv::Mat(1, 5, CV_64F);
-    for (size_t i = 0; i < msg->d.size() && i < 5; ++i) {
+    for (size_t i = 0; i < msg->d.size() && i < 5; ++i)
       dist_coeffs_.at<double>(i) = msg->d[i];
-    }
 
     camera_info_received_ = true;
-    RCLCPP_INFO(this->get_logger(), "Camera parameters received and initialized.");
+    RCLCPP_INFO(get_logger(), "Camera intrinsics loaded.");
   }
 
-  void image_callback(const sensor_msgs::msg::Image::ConstSharedPtr & msg)
+  void image_callback(const sensor_msgs::msg::Image::ConstSharedPtr &msg)
   {
     if (!camera_info_received_) {
-      RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 2000, 
-                          "Waiting for camera info...");
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000, "Waiting for camera info...");
       return;
     }
 
     try {
-      cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg, "bgr8");
-      cv::Mat frame = cv_ptr->image;
-      cv::Mat hsv, yellow_mask, blurred, binary;
+      auto cv_ptr = cv_bridge::toCvCopy(msg, "bgr8");
+      cv::Mat frame = cv_ptr->image.clone();
+      cv::Mat hsv, mask, blurred, binary;
 
-      // 1. 转换为HSV颜色空间
       cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
 
-      // 2. 获取黄色HSV阈值参数
-      int h_min = this->get_parameter("h_min").as_int();
-      int h_max = this->get_parameter("h_max").as_int();
-      int s_min = this->get_parameter("s_min").as_int();
-      int s_max = this->get_parameter("s_max").as_int();
-      int v_min = this->get_parameter("v_min").as_int();
-      int v_max = this->get_parameter("v_max").as_int();
+      int h_min = get_parameter("h_min").as_int();
+      int h_max = get_parameter("h_max").as_int();
+      int s_min = get_parameter("s_min").as_int();
+      int s_max = get_parameter("s_max").as_int();
+      int v_min = get_parameter("v_min").as_int();
+      int v_max = get_parameter("v_max").as_int();
 
-      // 3. 提取黄色区域
-      cv::Scalar lower_yellow(h_min, s_min, v_min);
-      cv::Scalar upper_yellow(h_max, s_max, v_max);
-      cv::inRange(hsv, lower_yellow, upper_yellow, yellow_mask);
+      cv::inRange(hsv, cv::Scalar(h_min, s_min, v_min), cv::Scalar(h_max, s_max, v_max), mask);
+      cv::GaussianBlur(mask, blurred, cv::Size(5, 5), 0);
+      cv::threshold(blurred, binary, 0, 255, cv::THRESH_OTSU);
 
-      // 4. 图像预处理
-      cv::GaussianBlur(yellow_mask, blurred, cv::Size(5, 5), 0); 
-      cv::threshold(blurred, binary, 127, 255, cv::THRESH_BINARY | cv::THRESH_OTSU); 
-
-      // 5. 形态学操作
-      cv::Mat kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));
+      auto kernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5));
       cv::morphologyEx(binary, binary, cv::MORPH_CLOSE, kernel);
       cv::morphologyEx(binary, binary, cv::MORPH_OPEN, kernel);
 
-      // 6. 查找轮廓
       std::vector<std::vector<cv::Point>> contours;
-      std::vector<cv::Vec4i> hierarchy;
-      cv::findContours(binary, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+      cv::findContours(binary, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-      // 7. 筛选最大轮廓
+      cv::Mat debug_frame = frame.clone();
+
       if (!contours.empty()) {
-        double max_area = 0;
-        std::vector<cv::Point> largest_contour;
+        auto largest = std::max_element(contours.begin(), contours.end(),
+          [](const auto& a, const auto& b) { return cv::contourArea(a) < cv::contourArea(b); });
 
-        for (const auto& contour : contours) {
-          double area = cv::contourArea(contour);
-          if (area > max_area && area > 50) {
-            max_area = area;
-            largest_contour = contour;
-          }
-        }
+        if (cv::contourArea(*largest) > 50) {
+          cv::RotatedRect rect = cv::minAreaRect(*largest);
+          cv::Point2f pts[4]; rect.points(pts);
 
-        if (!largest_contour.empty()) {
-          // 拟合最小面积矩形
-          cv::RotatedRect min_rect = cv::minAreaRect(largest_contour);
-          
-          // 获取矩形的四个角点
-          cv::Point2f rect_points[4];
-          min_rect.points(rect_points);
-
-          // 计算矩形的宽度和高度（像素）
-          float pixel_width = std::max(min_rect.size.width, min_rect.size.height);
-
-          // 使用相机内参计算距离
+          float pixel_w = std::max(rect.size.width, rect.size.height);
           double fx = camera_matrix_.at<double>(0, 0);
-          double physical_width = this->get_parameter("physical_width").as_double();
-          double distance_z = (fx * physical_width) / pixel_width;
+          double real_w = get_parameter("physical_width").as_double();
+          double z = (fx * real_w) / pixel_w;
 
-          // 计算中心点在图像坐标系中的位置
-          cv::Point2f center = min_rect.center;
-          double center_x = center.x;
-          double center_y = center.y;
-
-          // 计算在相机坐标系中的3D位置
-          double principal_x = camera_matrix_.at<double>(0, 2);
-          double principal_y = camera_matrix_.at<double>(1, 2);
+          double cx = camera_matrix_.at<double>(0, 2);
+          double cy = camera_matrix_.at<double>(1, 2);
           double fy = camera_matrix_.at<double>(1, 1);
 
-          double world_x = (center_x - principal_x) * distance_z / fx;
-          double world_y = (center_y - principal_y) * distance_z / fy;
+          double x = (rect.center.x - cx) * z / fx;
+          double y = (rect.center.y - cy) * z / fy;
 
-          // 计算旋转角度
-          double angle = min_rect.angle * CV_PI / 180.0;
-          if (min_rect.size.width < min_rect.size.height) {
-            angle += CV_PI / 2.0;
-          }
+          double angle = rect.angle * CV_PI / 180.0;
+          if (rect.size.width < rect.size.height) angle += CV_PI / 2.0;
 
-          // 创建相机坐标系下的位姿
-          auto camera_pose = geometry_msgs::msg::PoseStamped();
-          camera_pose.header = msg->header;
-          camera_pose.header.frame_id = "camera_frame";
+          // 相机坐标系位姿
+          geometry_msgs::msg::PoseStamped cam_pose;
+          cam_pose.header = msg->header;
+          cam_pose.header.frame_id = "robot1/camera_link";
+          cam_pose.pose.position.x = x;
+          cam_pose.pose.position.y = y;
+          cam_pose.pose.position.z = z;
 
-          camera_pose.pose.position.x = world_x;
-          camera_pose.pose.position.y = world_y;
-          camera_pose.pose.position.z = distance_z;
+          double ha = angle / 2.0;
+          cam_pose.pose.orientation.w = std::cos(ha);
+          cam_pose.pose.orientation.z = std::sin(ha);
 
-          // 四元数表示绕Z轴的旋转
-          double half_angle = angle / 2.0;
-          camera_pose.pose.orientation.w = cos(half_angle);
-          camera_pose.pose.orientation.x = 0.0;
-          camera_pose.pose.orientation.y = 0.0;
-          camera_pose.pose.orientation.z = sin(half_angle);
-
-          // 转换到世界坐标系
+          // TF 变换
           try {
-            std::string world_frame = this->get_parameter("world_frame").as_string();
-            
-            // 获取从相机坐标系到世界坐标系的变换
-            auto transform = tf_buffer_.lookupTransform(
-              world_frame, 
-              camera_pose.header.frame_id,
-              tf2::TimePointZero);
-            
-            // 应用变换
+            std::string world_frame = get_parameter("world_frame").as_string();
+            auto tf = tf_buffer_.lookupTransform(world_frame, "robot1/camera_link", tf2::TimePointZero);
             geometry_msgs::msg::PoseStamped world_pose;
-            tf2::doTransform(camera_pose, world_pose, transform);
-            
-            // 发布世界坐标系下的位姿
+            tf2::doTransform(cam_pose, world_pose, tf);
             pose_pub_->publish(world_pose);
 
-            RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000,
-                                "Detected yellow object - Camera frame: [x:%.3f y:%.3f z:%.3f] World frame: [x:%.3f y:%.3f z:%.3f]",
-                                world_x, world_y, distance_z,
-                                world_pose.pose.position.x, world_pose.pose.position.y, world_pose.pose.position.z);
-
+            RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000,
+              "Target: Cam[%.2f,%.2f,%.2f] World[%.2f,%.2f,%.2f]",
+              x, y, z,
+              world_pose.pose.position.x,
+              world_pose.pose.position.y,
+              world_pose.pose.position.z);
           } catch (tf2::TransformException &ex) {
-            RCLCPP_WARN(this->get_logger(), "TF transformation failed: %s", ex.what());
-            return;
+            RCLCPP_WARN(get_logger(), "TF error: %s", ex.what());
           }
 
-          // 调试绘图
-          if (debug_drawing_) {
-            // 绘制最小面积矩形
-            for (int j = 0; j < 4; j++) {
-              cv::line(frame, rect_points[j], rect_points[(j+1)%4], cv::Scalar(0, 0, 255), 2);
-            }
-            // 绘制中心点
-            cv::circle(frame, center, 5, cv::Scalar(255, 0, 0), -1);
-            // 显示黄色掩码
-            cv::Mat mask_vis;
-            cv::cvtColor(yellow_mask, mask_vis, cv::COLOR_GRAY2BGR);
-            cv::hconcat(frame, mask_vis, frame);
-          }
+          // 绘制调试信息
+          for (int i = 0; i < 4; ++i)
+            cv::line(debug_frame, pts[i], pts[(i+1)%4], cv::Scalar(0,0,255), 2);
+          cv::circle(debug_frame, rect.center, 5, cv::Scalar(255,0,0), -1);
         }
       }
 
+      // 拼接 mask 用于调试
+      cv::Mat mask_bgr, combined;
+      cv::cvtColor(mask, mask_bgr, cv::COLOR_GRAY2BGR);
+      cv::hconcat(debug_frame, mask_bgr, combined);
+
       // 发布调试图像
-      if (debug_drawing_) {
-        cv_bridge::CvImage debug_img;
-        debug_img.header = msg->header;
-        debug_img.encoding = "bgr8";
-        debug_img.image = frame;
-        debug_img_pub_.publish(debug_img.toImageMsg());
-        cv::imshow("Yellow Detection", frame);
-        cv::waitKey(1);
+      if (debug_img_pub_.getNumSubscribers() > 0) {
+        cv_bridge::CvImage out_msg;
+        out_msg.header = msg->header;
+        out_msg.encoding = "bgr8";
+        out_msg.image = combined;
+        debug_img_pub_.publish(out_msg.toImageMsg());
       }
 
-    } catch (const cv_bridge::Exception & e) {
-      RCLCPP_ERROR(this->get_logger(), "cv_bridge error: %s", e.what());
-    } catch (const std::exception & e) {
-      RCLCPP_ERROR(this->get_logger(), "Exception: %s", e.what());
+      // 更新实时显示缓冲（线程安全）
+      {
+        std::lock_guard<std::mutex> lock(frame_mutex_);
+        latest_debug_frame_ = combined.clone();
+        new_frame_available_ = true;
+      }
+
+    } catch (const std::exception &e) {
+      RCLCPP_ERROR(get_logger(), "Processing error: %s", e.what());
+    }
+  }
+
+  // 实时显示线程（由 wall_timer 调用）
+  void display_thread()
+  {
+    cv::Mat frame_to_show;
+    bool has_new = false;
+
+    {
+      std::lock_guard<std::mutex> lock(frame_mutex_);
+      if (new_frame_available_) {
+        latest_debug_frame_.copyTo(frame_to_show);
+        new_frame_available_ = false;
+        has_new = true;
+      }
+    }
+
+    if (has_new) {
+      cv::imshow("Yellow Detection [Realtime]", frame_to_show);
+      char key = cv::waitKey(1);
+      if (key == 'q' || key == 27) {  // q 或 ESC 退出
+        RCLCPP_WARN(get_logger(), "Display window closed by user.");
+        display_timer_->cancel();
+        cv::destroyWindow("Yellow Detection [Realtime]");
+      }
     }
   }
 
   // 成员变量
+  std::unique_ptr<image_transport::ImageTransport> it_;
   image_transport::Subscriber image_sub_;
-  image_transport::Publisher debug_img_pub_; 
+  image_transport::Publisher debug_img_pub_;
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_sub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;
 
   cv::Mat camera_matrix_, dist_coeffs_;
-  bool camera_info_received_;
-  bool debug_drawing_ = true;
-  
-  // TF2相关变量
+  bool camera_info_received_ = false;
+
+  // 实时显示
+  rclcpp::TimerBase::SharedPtr display_timer_;
+  cv::Mat latest_debug_frame_;
+  std::mutex frame_mutex_;
+  bool new_frame_available_ = false;
+
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 };
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<ContourPoseNode>());
+  auto node = std::make_shared<ContourPoseNode>();
+  node->on_init();
+  rclcpp::spin(node);
+  cv::destroyAllWindows();
   rclcpp::shutdown();
   return 0;
 }
