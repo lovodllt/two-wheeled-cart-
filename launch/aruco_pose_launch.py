@@ -17,7 +17,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'world_frame',
-            default_value='world',
+            default_value='robot1/base_link',
             description='世界坐标系名称'
         ),
         

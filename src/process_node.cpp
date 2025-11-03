@@ -144,7 +144,7 @@ private:
           // 相机坐标系位姿
           geometry_msgs::msg::PoseStamped cam_pose;
           cam_pose.header = msg->header;
-          cam_pose.header.frame_id = "camera_frame";
+          cam_pose.header.frame_id = "robot1/camera_link";
           cam_pose.pose.position.x = x;
           cam_pose.pose.position.y = y;
           cam_pose.pose.position.z = z;
@@ -156,7 +156,7 @@ private:
           // TF 变换
           try {
             std::string world_frame = get_parameter("world_frame").as_string();
-            auto tf = tf_buffer_.lookupTransform(world_frame, "camera_frame", tf2::TimePointZero);
+            auto tf = tf_buffer_.lookupTransform(world_frame, "robot1/camera_link", tf2::TimePointZero);
             geometry_msgs::msg::PoseStamped world_pose;
             tf2::doTransform(cam_pose, world_pose, tf);
             pose_pub_->publish(world_pose);
