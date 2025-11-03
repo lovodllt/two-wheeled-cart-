@@ -36,41 +36,14 @@ find_package(image_transport REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-# 创建控制器库
-add_library(right_wheel_controller SHARED
-        src/right_wheel_controller.cpp
-)
 add_library(simple_diff_drive_controller SHARED
         src/simple_diff_drive_controller.cpp)
-
-# 如果有 include 目录，添加包含路径
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/include)
-    target_include_directories(right_wheel_controller PUBLIC
-            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:include>
-    )
-endif()
-
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/include)
     target_include_directories(simple_diff_drive_controller PUBLIC
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<INSTALL_INTERFACE:include>
     )
 endif()
-
-
-
-# 添加依赖
-ament_target_dependencies(right_wheel_controller
-        controller_interface
-        hardware_interface
-        std_msgs
-        pluginlib
-        rclcpp
-        rclcpp_lifecycle
-        nav_msgs
-)
-
 ament_target_dependencies(simple_diff_drive_controller
         controller_interface
         hardware_interface
@@ -83,38 +56,22 @@ ament_target_dependencies(simple_diff_drive_controller
         std_msgs
         pluginlib)
 
-
-
-install(TARGETS right_wheel_controller
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-)
-
 install(TARGETS simple_diff_drive_controller
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin
 )
 
-
-# 安装 include 目录（如果存在）
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/include)
     install(DIRECTORY include/
             DESTINATION include
     )
 endif()
 
-# 导出插件
-install(FILES right_wheel_controller.xml
-        DESTINATION share/${PROJECT_NAME}
-)
-
 install(FILES simple_diff_drive_controller.xml
         DESTINATION share/${PROJECT_NAME}
 )
 
-# 安装其他文件
 install(DIRECTORY launch
         DESTINATION share/${PROJECT_NAME}
 )
@@ -134,8 +91,6 @@ install(DIRECTORY config
         DESTINATION share/${PROJECT_NAME}
 )
 
-# 插件导出
-pluginlib_export_plugin_description_file(controller_interface right_wheel_controller.xml)
 pluginlib_export_plugin_description_file(controller_interface simple_diff_drive_controller.xml)
 
 ament_package()

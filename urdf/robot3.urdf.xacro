@@ -1,0 +1,447 @@
+<?xml version='1.0'?>
+<robot name="mogi_bot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 材料定义 -->
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+  <material name="red">
+    <color rgba="0.8 0 0 1"/>
+  </material>
+  <material name="green">
+    <color rgba="0 0.8 0 1"/>
+  </material>
+  <material name="yellow">
+    <color rgba="0.8 0.8 0 1"/>
+  </material>
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="gray">
+    <color rgba="0.5 0.5 0.5 1"/>
+  </material>
+  <material name="silver">
+    <color rgba="0.8 0.8 0.8 1"/>
+  </material>
+
+  <!-- 核心参数定义（四轮小车适配） -->
+  <xacro:property name="base_mass" value="20.0" />
+  <xacro:property name="wheel_mass" value="3.0" />
+  <xacro:property name="wheel_radius" value="0.15" />  <!-- 增大轮子半径 -->
+  <xacro:property name="wheel_length" value="0.08" />  <!-- 增大轮子宽度 -->
+  <xacro:property name="wheel_separation" value="0.4" /> <!-- 增大左右轮间距 -->
+  <xacro:property name="wheelbase" value="0.5" />        <!-- 增大前后轮间距 -->
+
+  <!-- 云台参数 -->
+  <xacro:property name="gimbal_base_mass" value="0.5" />
+  <xacro:property name="gimbal_yaw_mass" value="0.5" />
+  <xacro:property name="barrel_mass" value="0.3" />
+  <xacro:property name="camera_mass" value="0.3" />
+  <xacro:property name="barrel_length" value="0.2" />
+  <xacro:property name="barrel_radius" value="0.02" />
+
+  <link name="odom">
+      <inertial>
+        <mass value="0.001"/>
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+      </inertial>
+    </link>
+
+    <!-- 新增：odom 到 base_footprint 的固定关节（里程计坐标系关联） -->
+    <joint name="odom_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="odom"/>
+      <child link="base_footprint"/>
+    </joint>
+
+  <link name="base_footprint">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <!-- 2. 车身底座（base_link）- 增大尺寸 -->
+  <joint name="base_footprint_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="base_footprint"/>
+    <child link="base_link" />
+  </joint>
+
+  <link name='base_link'>
+    <inertial>
+      <mass value="${base_mass}"/>
+      <origin xyz="0.0 0 0.05" rpy="0 0 0"/>
+      <inertia
+          ixx="0.1" ixy="0" ixz="0"
+          iyy="0.15" iyz="0"
+          izz="0.2"
+      />
+    </inertial>
+
+    <collision name='collision'>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.6 0.3 0.1"/>  <!-- 增大车身尺寸 -->
+      </geometry>
+    </collision>
+
+    <visual name='base_link_visual'>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.6 0.3 0.1"/>
+      </geometry>
+      <material name="red"/>  <!-- 改为红色车身 -->
+    </visual>
+  </link>
+
+  <!-- 3. 云台结构 -->
+  <joint name="gimbal_base_joint" type="fixed">
+    <origin xyz="0.2 0 0.05" rpy="0 0 0" />
+    <parent link="base_link"/>
+    <child link="gimbal_base" />
+  </joint>
+
+  <link name='gimbal_base'>
+    <inertial>
+      <mass value="${gimbal_base_mass}"/>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <inertia
+          ixx="0.001" ixy="0" ixz="0"
+          iyy="0.001" iyz="0"
+          izz="0.001"
+      />
+    </inertial>
+
+    <collision name='gimbal_base_collision'>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.04" length="0.04"/>
+      </geometry>
+    </collision>
+
+    <visual name='gimbal_base_visual'>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.04" length="0.04"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+  </link>
+
+  <!-- 云台偏航关节 - 固定关节 -->
+  <joint name="gimbal_yaw_joint" type="fixed">
+    <origin xyz="0 0 0.04" rpy="0 0 0" />
+    <parent link="gimbal_base"/>
+    <child link="gimbal_yaw" />
+  </joint>
+
+  <link name='gimbal_yaw'>
+    <inertial>
+      <mass value="${gimbal_yaw_mass}"/>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <inertia
+          ixx="0.0005" ixy="0" ixz="0"
+          iyy="0.0005" iyz="0"
+          izz="0.0005"
+      />
+    </inertial>
+
+    <collision name='gimbal_yaw_collision'>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.08 0.08 0.04"/>
+      </geometry>
+    </collision>
+
+    <visual name='gimbal_yaw_visual'>
+      <origin xyz="0 0 0.02" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.08 0.08 0.04"/>
+      </geometry>
+      <material name="gray"/>
+    </visual>
+  </link>
+
+  <!-- 枪管连接 -->
+  <joint name="barrel_joint" type="fixed">
+    <origin xyz="0 0 0.04" rpy="0 0 0" />
+    <parent link="gimbal_yaw"/>
+    <child link="barrel_link" />
+  </joint>
+
+  <link name='barrel_link'>
+    <inertial>
+      <mass value="${barrel_mass}"/>
+      <origin xyz="${barrel_length/2} 0 0" rpy="0 0 0"/>
+      <inertia
+          ixx="0.0003" ixy="0" ixz="0"
+          iyy="0.0003" iyz="0"
+          izz="0.0003"
+      />
+    </inertial>
+
+    <collision name='barrel_collision'>
+      <origin xyz="${barrel_length/2} 0 0" rpy="1.57 0 1.57"/>
+      <geometry>
+        <cylinder radius="${barrel_radius}" length="${barrel_length}"/>
+      </geometry>
+    </collision>
+
+    <visual name='barrel_visual'>
+      <origin xyz="${barrel_length/2} 0 0" rpy="1.57 0 1.57"/>
+      <geometry>
+        <cylinder radius="${barrel_radius}" length="${barrel_length}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <!-- 相机安装在枪管末端 -->
+  <joint name="camera_joint" type="fixed">
+    <origin xyz="${barrel_length} 0 0" rpy="0 0 0" />
+    <parent link="barrel_link"/>
+    <child link="camera_link" />
+  </joint>
+
+  <link name='camera_link'>
+    <inertial>
+      <mass value="${camera_mass}"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia
+          ixx="0.0001" ixy="0" ixz="0"
+          iyy="0.0001" iyz="0"
+          izz="0.0001"
+      />
+    </inertial>
+
+    <visual name='camera_visual'>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+      <geometry>
+        <cylinder radius="0.015" length="0.04"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <visual name='camera_lens_visual'>
+      <origin xyz="0.02 0 0" rpy="0 1.5708 1.5708"/>
+      <geometry>
+        <cylinder radius="0.008" length="0.005"/>
+      </geometry>
+      <material name="yellow"/>  <!-- 黄色镜头 -->
+    </visual>
+  </link>
+
+  <!-- 4. 四轮驱动结构 -->
+  <!-- 前轮（左） -->
+  <joint type="continuous" name="front_left_wheel_joint">
+    <origin xyz="${wheelbase/2} ${wheel_separation/2} 0" rpy="0 0 0"/>
+    <child link="front_left_wheel"/>
+    <parent link="base_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="10"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name='front_left_wheel'>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <inertia
+          ixx="0.02" ixy="0" ixz="0"
+          iyy="0.02" iyz="0"
+          izz="0.035"
+      />
+    </inertial>
+
+    <collision name="front_left_wheel_collision">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+    </collision>
+
+    <visual name='front_left_wheel_visual'>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <!-- 前轮（右） -->
+  <joint type="continuous" name="front_right_wheel_joint">
+    <origin xyz="${wheelbase/2} -${wheel_separation/2} 0" rpy="0 0 0"/>
+    <child link="front_right_wheel"/>
+    <parent link="base_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="10"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name='front_right_wheel'>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <inertia
+          ixx="0.02" ixy="0" ixz="0"
+          iyy="0.02" iyz="0"
+          izz="0.035"
+      />
+    </inertial>
+
+    <collision name="front_right_wheel_collision">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+    </collision>
+
+    <visual name='front_right_wheel_visual'>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <!-- 后轮（左） -->
+  <joint type="continuous" name="rear_left_wheel_joint">
+    <origin xyz="-${wheelbase/2} ${wheel_separation/2} 0" rpy="0 0 0"/>
+    <child link="rear_left_wheel"/>
+    <parent link="base_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="10"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name='rear_left_wheel'>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <inertia
+          ixx="0.02" ixy="0" ixz="0"
+          iyy="0.02" iyz="0"
+          izz="0.035"
+      />
+    </inertial>
+
+    <collision name="rear_left_wheel_collision">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+    </collision>
+
+    <visual name='rear_left_wheel_visual'>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint type="continuous" name="rear_right_wheel_joint">
+    <origin xyz="-${wheelbase/2} -${wheel_separation/2} 0" rpy="0 0 0"/>
+    <child link="rear_right_wheel"/>
+    <parent link="base_link"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="10"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
+
+  <link name='rear_right_wheel'>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <inertia
+          ixx="0.02" ixy="0" ixz="0"
+          iyy="0.02" iyz="0"
+          izz="0.035"
+      />
+    </inertial>
+
+    <collision name="rear_right_wheel_collision">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+    </collision>
+
+    <visual name='rear_right_wheel_visual'>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <gazebo>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <parameters>$(find two_wheeled_cart)/config/controller3.yaml</parameters>
+      <controller_manager_node_name>controller_manager</controller_manager_node_name>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="camera_link">
+    <sensor type="camera" name="camera1">
+      <update_rate>30.0</update_rate>
+      <camera name="head">
+        <horizontal_fov>1.0472</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>100</far>
+        </clip>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <ros>
+          <namespace>/mogi_bot</namespace>
+          <remapping>image_raw:=camera/image_raw</remapping>
+          <remapping>camera_info:=camera/camera_info</remapping>
+        </ros>
+        <camera_name>camera</camera_name>
+        <frame_name>camera_link</frame_name>
+        <hack_baseline>0.07</hack_baseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- 6. ros2_control配置（四轮差速控制） -->
+  <ros2_control name="mogi_hardware_interface" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      <param name="robot_param">robot_description</param>
+    </hardware>
+
+    <joint name="front_left_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="front_right_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rear_left_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rear_right_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>
