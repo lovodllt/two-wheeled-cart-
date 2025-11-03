@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<library path="simple_diff_drive_controller2">
+    <class name="simple_diff_drive_controller/SimpleDiffDriveController2"
+           type="SimpleDiffDriveController2"
+           base_class_type="controller_interface::ControllerInterface">
+        <description>
+            Simple differential drive controller for two-wheeled robots.
+            Converts Twist messages to wheel velocities without odometry.
+        </description>
+    </class>
+</library>
+

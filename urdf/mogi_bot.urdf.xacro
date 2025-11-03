@@ -414,6 +414,9 @@
   <gazebo>
     <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
       <parameters>$(find two_wheeled_cart)/config/controller.yaml</parameters>
+      <controller_manager_node_name>controller_manager</controller_manager_node_name>
+          <!-- 机器人命名空间在这里设置 -->
+      <robot_namespace>robot1</robot_namespace>
     </plugin>
   </gazebo>
 
@@ -450,6 +453,9 @@
   <ros2_control name="mogi_hardware_interface" type="system">
     <hardware>
       <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      <controller_manager_node_name>robot1_controller_manager</controller_manager_node_name>
+      <param name="robot_namespace">robot1</param>
+      <param name="robot_param">robot_description</param>
     </hardware>
 
     <!-- 轮子控制 -->
