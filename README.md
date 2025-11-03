@@ -14,7 +14,7 @@
 
     colcon build
     source install/setup.bash
-    ros2 launch two_wheeled_cart loader.launch.py
+    ros2 launch two_wheeled_cart test.launch.py
     
     sudo apt install ros-humble-teleop-twist-keyboard
     // 安装键盘控制包
