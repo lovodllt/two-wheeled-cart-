@@ -118,6 +118,9 @@ install(FILES simple_diff_drive_controller.xml
 install(DIRECTORY launch
         DESTINATION share/${PROJECT_NAME}
 )
+install(DIRECTORY scripts
+        DESTINATION share/${PROJECT_NAME}
+)
 
 install(DIRECTORY urdf
         DESTINATION share/${PROJECT_NAME}

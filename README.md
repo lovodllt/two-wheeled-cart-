@@ -22,3 +22,5 @@
     //使用这个可以指定键盘控制话题发布，使用键盘控制机器人（另开终端
     ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/robot2/simple_diff_drive_controller2/cmd_vel
     //控制二号机器人
+    
+    

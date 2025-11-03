@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.6">
-  <world name="my_apartment">
+  <world name="large_apartment">
 
     <!-- 环境光照 -->
     <light type="directional" name="sun">
@@ -41,7 +41,7 @@
         <collision name="floor_collision">
           <geometry>
             <box>
-              <size>10 10 0.1</size>
+              <size>20 20 0.1</size>
             </box>
           </geometry>
           <surface>
@@ -58,7 +58,7 @@
         <visual name="floor_visual">
           <geometry>
             <box>
-              <size>10 10 0.1</size>
+              <size>20 20 0.1</size>
             </box>
           </geometry>
           <material>
@@ -74,19 +74,19 @@
     <!-- 墙壁 -->
     <model name="wall_north">
       <static>true</static>
-      <pose>0 4.5 1 0 0 0</pose>
+      <pose>0 9.5 1 0 0 0</pose>
       <link name="wall_link">
         <collision name="wall_collision">
           <geometry>
             <box>
-              <size>10 0.2 2</size>
+              <size>20 0.2 2</size>
             </box>
           </geometry>
         </collision>
         <visual name="wall_visual">
           <geometry>
             <box>
-              <size>10 0.2 2</size>
+              <size>20 0.2 2</size>
             </box>
           </geometry>
           <material>
@@ -96,38 +96,24 @@
             </script>
           </material>
         </visual>
-
-        <visual name="yellow_board_visual">
-              <pose>0 0 0 0 0 0</pose>  <!-- 位于墙的中心 -->
-              <geometry>
-                <box>
-                  <size>0.5 0.21 0.5</size>  <!-- 比墙略厚一点，确保可见 -->
-                </box>
-              </geometry>
-              <material>
-                <ambient>1 1 0 1</ambient>    <!-- 黄色环境光 -->
-                <diffuse>1 1 0 1</diffuse>    <!-- 黄色漫反射 -->
-                <specular>0.5 0.5 0 1</specular>  <!-- 黄色高光 -->
-              </material>
-            </visual>
       </link>
     </model>
 
     <model name="wall_south">
       <static>true</static>
-      <pose>0 -4.5 1 0 0 0</pose>
+      <pose>0 -9.5 1 0 0 0</pose>
       <link name="wall_link">
         <collision name="wall_collision">
           <geometry>
             <box>
-              <size>10 0.2 2</size>
+              <size>20 0.2 2</size>
             </box>
           </geometry>
         </collision>
         <visual name="wall_visual">
           <geometry>
             <box>
-              <size>10 0.2 2</size>
+              <size>20 0.2 2</size>
             </box>
           </geometry>
           <material>
@@ -137,38 +123,24 @@
             </script>
           </material>
         </visual>
-
-        <visual name="yellow_board_visual">
-                      <pose>0 0 0 0 0 0</pose>  <!-- 位于墙的中心 -->
-                      <geometry>
-                        <box>
-                          <size>0.5 0.21 0.5</size>  <!-- 比墙略厚一点，确保可见 -->
-                        </box>
-                      </geometry>
-                      <material>
-                        <ambient>1 1 0 1</ambient>    <!-- 黄色环境光 -->
-                        <diffuse>1 1 0 1</diffuse>    <!-- 黄色漫反射 -->
-                        <specular>0.5 0.5 0 1</specular>  <!-- 黄色高光 -->
-                      </material>
-                    </visual>
       </link>
     </model>
 
     <model name="wall_east">
       <static>true</static>
-      <pose>4.5 0 1 0 0 0</pose>
+      <pose>9.5 0 1 0 0 0</pose>
       <link name="wall_link">
         <collision name="wall_collision">
           <geometry>
             <box>
-              <size>0.2 10 2</size>
+              <size>0.2 20 2</size>
             </box>
           </geometry>
         </collision>
         <visual name="wall_visual">
           <geometry>
             <box>
-              <size>0.2 10 2</size>
+              <size>0.2 20 2</size>
             </box>
           </geometry>
           <material>
@@ -178,38 +150,24 @@
             </script>
           </material>
         </visual>
-
-        <visual name="yellow_board_visual">
-                      <pose>0 0 0 0 0 0</pose>  <!-- 位于墙的中心 -->
-                      <geometry>
-                        <box>
-                          <size>0.21 0.5 0.5</size>  <!-- 比墙略厚一点，确保可见 -->
-                        </box>
-                      </geometry>
-                      <material>
-                        <ambient>1 1 0 1</ambient>    <!-- 黄色环境光 -->
-                        <diffuse>1 1 0 1</diffuse>    <!-- 黄色漫反射 -->
-                        <specular>0.5 0.5 0 1</specular>  <!-- 黄色高光 -->
-                      </material>
-                    </visual>
       </link>
     </model>
 
     <model name="wall_west">
       <static>true</static>
-      <pose>-4.5 0 1 0 0 0</pose>
+      <pose>-9.5 0 1 0 0 0</pose>
       <link name="wall_link">
         <collision name="wall_collision">
           <geometry>
             <box>
-              <size>0.2 10 2</size>
+              <size>0.2 20 2</size>
             </box>
           </geometry>
         </collision>
         <visual name="wall_visual">
           <geometry>
             <box>
-              <size>0.2 10 2</size>
+              <size>0.2 20 2</size>
             </box>
           </geometry>
           <material>
@@ -219,42 +177,28 @@
             </script>
           </material>
         </visual>
-
-        <visual name="yellow_board_visual">
-                      <pose>0 0 0 0 0 0</pose>  <!-- 位于墙的中心 -->
-                      <geometry>
-                        <box>
-                          <size>0.21 0.5 0.5</size>  <!-- 比墙略厚一点，确保可见 -->
-                        </box>
-                      </geometry>
-                      <material>
-                        <ambient>1 1 0 1</ambient>    <!-- 黄色环境光 -->
-                        <diffuse>1 1 0 1</diffuse>    <!-- 黄色漫反射 -->
-                        <specular>0.5 0.5 0 1</specular>  <!-- 黄色高光 -->
-                      </material>
-                    </visual>
       </link>
     </model>
 
-    <!-- 桌子 -->
-    <model name="table">
+    <!-- 精致餐桌 -->
+    <model name="dining_table">
       <static>true</static>
-      <pose>1 0 0 0 0 0</pose>
+      <pose>3 3 0 0 0 0</pose>
       <link name="table_link">
         <!-- 桌面 -->
         <collision name="tabletop_collision">
-          <pose>0 0 0.35 0 0 0</pose>
+          <pose>0 0 0.4 0 0 0</pose>
           <geometry>
             <box>
-              <size>1 0.8 0.05</size>
+              <size>1.2 0.8 0.05</size>
             </box>
           </geometry>
         </collision>
         <visual name="tabletop_visual">
-          <pose>0 0 0.35 0 0 0</pose>
+          <pose>0 0 0.4 0 0 0</pose>
           <geometry>
             <box>
-              <size>1 0.8 0.05</size>
+              <size>1.2 0.8 0.05</size>
             </box>
           </geometry>
           <material>
@@ -266,100 +210,100 @@
         </visual>
         <!-- 桌腿 -->
         <collision name="leg1_collision">
-          <pose>0.4 0.3 0.15 0 0 0</pose>
+          <pose>0.5 0.3 0.15 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.05 0.05 0.3</size>
+              <size>0.06 0.06 0.3</size>
             </box>
           </geometry>
         </collision>
         <visual name="leg1_visual">
-          <pose>0.4 0.3 0.15 0 0 0</pose>
+          <pose>0.5 0.3 0.15 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.05 0.05 0.3</size>
+              <size>0.06 0.06 0.3</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
         <collision name="leg2_collision">
-          <pose>-0.4 0.3 0.15 0 0 0</pose>
+          <pose>-0.5 0.3 0.15 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.05 0.05 0.3</size>
+              <size>0.06 0.06 0.3</size>
             </box>
           </geometry>
         </collision>
         <visual name="leg2_visual">
-          <pose>-0.4 0.3 0.15 0 0 0</pose>
+          <pose>-0.5 0.3 0.15 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.05 0.05 0.3</size>
+              <size>0.06 0.06 0.3</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
         <collision name="leg3_collision">
-          <pose>0.4 -0.3 0.15 0 0 0</pose>
+          <pose>0.5 -0.3 0.15 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.05 0.05 0.3</size>
+              <size>0.06 0.06 0.3</size>
             </box>
           </geometry>
         </collision>
         <visual name="leg3_visual">
-          <pose>0.4 -0.3 0.15 0 0 0</pose>
+          <pose>0.5 -0.3 0.15 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.05 0.05 0.3</size>
+              <size>0.06 0.06 0.3</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
         <collision name="leg4_collision">
-          <pose>-0.4 -0.3 0.15 0 0 0</pose>
+          <pose>-0.5 -0.3 0.15 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.05 0.05 0.3</size>
+              <size>0.06 0.06 0.3</size>
             </box>
           </geometry>
         </collision>
         <visual name="leg4_visual">
-          <pose>-0.4 -0.3 0.15 0 0 0</pose>
+          <pose>-0.5 -0.3 0.15 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.05 0.05 0.3</size>
+              <size>0.06 0.06 0.3</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- 椅子 -->
-    <model name="chair">
+    <!-- 精致餐椅 -->
+    <model name="dining_chair">
       <static>true</static>
-      <pose>-1 1 0.2 0 0 0</pose>
+      <pose>4 3 0 0 0 0</pose>
       <link name="chair_link">
         <!-- 座位 -->
         <collision name="seat_collision">
@@ -380,30 +324,30 @@
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/Red</name>
             </script>
           </material>
         </visual>
         <!-- 椅背 -->
         <collision name="back_collision">
-          <pose>0 0.2 0.45 0 0 0</pose>
+          <pose>0 0.2 0.35 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.4 0.05 0.5</size>
+              <size>0.4 0.05 0.3</size>
             </box>
           </geometry>
         </collision>
         <visual name="back_visual">
-          <pose>0 0.2 0.45 0 0 0</pose>
+          <pose>0 0.2 0.35 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.4 0.05 0.5</size>
+              <size>0.4 0.05 0.3</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/Red</name>
             </script>
           </material>
         </visual>
@@ -426,7 +370,7 @@
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
@@ -448,7 +392,7 @@
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
@@ -470,7 +414,7 @@
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
@@ -492,140 +436,374 @@
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Wood</name>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- 沙发 -->
+    <!-- 精致沙发 -->
     <model name="sofa">
       <static>true</static>
-      <pose>-2 -1 -0.2 0 0 1.57</pose>
+      <pose>-5 0 0 0 0 0</pose>
       <link name="sofa_link">
         <!-- 座位 -->
         <collision name="seat_collision">
-          <pose>0 0 0.25 0 0 0</pose>
+          <pose>0 0 0.3 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.2 0.6 0.1</size>
+              <size>1.8 0.7 0.15</size>
             </box>
           </geometry>
         </collision>
         <visual name="seat_visual">
-          <pose>0 0 0.25 0 0 0</pose>
+          <pose>0 0 0.3 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.2 0.6 0.1</size>
+              <size>1.8 0.7 0.15</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Red</name>
+              <name>Gazebo/Blue</name>
             </script>
           </material>
         </visual>
         <!-- 靠背 -->
         <collision name="back_collision">
-          <pose>0 0.35 0.55 0 0 0</pose>
+          <pose>0 0.35 0.6 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.2 0.1 0.6</size>
+              <size>1.8 0.1 0.6</size>
             </box>
           </geometry>
         </collision>
         <visual name="back_visual">
-          <pose>0 0.35 0.55 0 0 0</pose>
+          <pose>0 0.35 0.6 0 0 0</pose>
           <geometry>
             <box>
-              <size>1.2 0.1 0.6</size>
+              <size>1.8 0.1 0.6</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Red</name>
+              <name>Gazebo/DarkBlue</name>
             </script>
           </material>
         </visual>
         <!-- 扶手 -->
         <collision name="arm1_collision">
-          <pose>-0.55 0 0.4 0 0 0</pose>
+          <pose>-0.85 0 0.45 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.1 0.6 0.3</size>
+              <size>0.1 0.7 0.3</size>
             </box>
           </geometry>
         </collision>
         <visual name="arm1_visual">
-          <pose>-0.55 0 0.4 0 0 0</pose>
+          <pose>-0.85 0 0.45 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.1 0.6 0.3</size>
+              <size>0.1 0.7 0.3</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Red</name>
+              <name>Gazebo/DarkBlue</name>
             </script>
           </material>
         </visual>
         <collision name="arm2_collision">
-          <pose>0.55 0 0.4 0 0 0</pose>
+          <pose>0.85 0 0.45 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.1 0.6 0.3</size>
+              <size>0.1 0.7 0.3</size>
             </box>
           </geometry>
         </collision>
         <visual name="arm2_visual">
-          <pose>0.55 0 0.4 0 0 0</pose>
+          <pose>0.85 0 0.45 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.1 0.6 0.3</size>
+              <size>0.1 0.7 0.3</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/Red</name>
+              <name>Gazebo/DarkBlue</name>
             </script>
           </material>
         </visual>
-      </link>
-    </model>
-
-    <!-- 柜子 -->
-    <model name="cabinet">
-      <static>true</static>
-      <pose>2 -2 0.5 0 0 0</pose>
-      <link name="cabinet_link">
-        <collision name="cabinet_collision">
+        <!-- 沙发腿 -->
+        <collision name="leg1_collision">
+          <pose>-0.7 -0.3 0.1 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.6 0.4 1</size>
+              <size>0.05 0.05 0.2</size>
             </box>
           </geometry>
         </collision>
-        <visual name="cabinet_visual">
+        <visual name="leg1_visual">
+          <pose>-0.7 -0.3 0.1 0 0 0</pose>
           <geometry>
             <box>
-              <size>0.6 0.4 1</size>
+              <size>0.05 0.05 0.2</size>
             </box>
           </geometry>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
-              <name>Gazebo/DarkGrey</name>
+              <name>Gazebo/DarkWood</name>
+            </script>
+          </material>
+        </visual>
+        <collision name="leg2_collision">
+          <pose>0.7 -0.3 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 0.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="leg2_visual">
+          <pose>0.7 -0.3 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.05 0.2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkWood</name>
             </script>
           </material>
         </visual>
       </link>
     </model>
 
+    <!-- 精致书柜 -->
+    <model name="bookshelf">
+      <static>true</static>
+      <pose>0 -6 0 0 0 0</pose>
+      <link name="bookshelf_link">
+        <!-- 主体 -->
+        <collision name="main_collision">
+          <pose>0 0 1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.0 0.3 2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="main_visual">
+          <pose>0 0 1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.0 0.3 2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Brown</name>
+            </script>
+          </material>
+        </visual>
+        <!-- 隔板 -->
+        <collision name="shelf1_collision">
+          <pose>0 0 0.5 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.9 0.25 0.02</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="shelf1_visual">
+          <pose>0 0 0.5 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.9 0.25 0.02</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkWood</name>
+            </script>
+          </material>
+        </visual>
+        <collision name="shelf2_collision">
+          <pose>0 0 1.0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.9 0.25 0.02</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="shelf2_visual">
+          <pose>0 0 1.0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.9 0.25 0.02</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkWood</name>
+            </script>
+          </material>
+        </visual>
+        <collision name="shelf3_collision">
+          <pose>0 0 1.5 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.9 0.25 0.02</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="shelf3_visual">
+          <pose>0 0 1.5 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.9 0.25 0.02</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkWood</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- 茶几 -->
+    <model name="coffee_table">
+      <static>true</static>
+      <pose>-3 3 0 0 0 0</pose>
+      <link name="table_link">
+        <!-- 桌面 -->
+        <collision name="tabletop_collision">
+          <pose>0 0 0.25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.8 0.5 0.04</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="tabletop_visual">
+          <pose>0 0 0.25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.8 0.5 0.04</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Wood</name>
+            </script>
+          </material>
+        </visual>
+        <!-- 桌腿 -->
+        <collision name="leg1_collision">
+          <pose>0.35 0.2 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.04 0.04 0.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="leg1_visual">
+          <pose>0.35 0.2 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.04 0.04 0.2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkWood</name>
+            </script>
+          </material>
+        </visual>
+        <collision name="leg2_collision">
+          <pose>-0.35 0.2 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.04 0.04 0.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="leg2_visual">
+          <pose>-0.35 0.2 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.04 0.04 0.2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkWood</name>
+            </script>
+          </material>
+        </visual>
+        <collision name="leg3_collision">
+          <pose>0.35 -0.2 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.04 0.04 0.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="leg3_visual">
+          <pose>0.35 -0.2 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.04 0.04 0.2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkWood</name>
+            </script>
+          </material>
+        </visual>
+        <collision name="leg4_collision">
+          <pose>-0.35 -0.2 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.04 0.04 0.2</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="leg4_visual">
+          <pose>-0.35 -0.2 0.1 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.04 0.04 0.2</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/DarkWood</name>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
 
     <plugin name="gazebo_ros" filename="libgazebo_ros_init.so"/>
     <plugin name="gazebo_ros" filename="libgazebo_ros_factory.so"/>

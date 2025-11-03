@@ -2,6 +2,7 @@
 #include <controller_interface/controller_interface.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <vector>
+#include <algorithm>  // 修复：std::clamp 依赖此头文件
 
 SimpleDiffDriveController::SimpleDiffDriveController()
 : left_wheel_velocity_command_(0.0),
@@ -15,7 +16,7 @@ controller_interface::InterfaceConfiguration SimpleDiffDriveController::command_
   controller_interface::InterfaceConfiguration config;
   config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
 
-  // 四个车轮的速度控制接口（与URDF关节名称完全一致）
+  // 四个车轮的速度控制接口（拼接格式：关节名称/velocity）
   config.names.push_back(front_left_wheel_name_ + "/" + hardware_interface::HW_IF_VELOCITY);
   config.names.push_back(front_right_wheel_name_ + "/" + hardware_interface::HW_IF_VELOCITY);
   config.names.push_back(rear_left_wheel_name_ + "/" + hardware_interface::HW_IF_VELOCITY);
@@ -24,39 +25,31 @@ controller_interface::InterfaceConfiguration SimpleDiffDriveController::command_
   return config;
 }
 
-// 声明4个车轮的状态接口（位置读取）
+// 声明4个车轮的状态接口（位置+速度读取，确保与硬件接口匹配）
 controller_interface::InterfaceConfiguration SimpleDiffDriveController::state_interface_configuration() const
 {
   controller_interface::InterfaceConfiguration config;
   config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
 
-  // 四个车轮的位置状态接口
+  // 四个车轮的位置+速度状态接口（硬件通常同时提供这两个状态）
   config.names.push_back(front_left_wheel_name_ + "/" + hardware_interface::HW_IF_POSITION);
+  config.names.push_back(front_left_wheel_name_ + "/" + hardware_interface::HW_IF_VELOCITY);
   config.names.push_back(front_right_wheel_name_ + "/" + hardware_interface::HW_IF_POSITION);
+  config.names.push_back(front_right_wheel_name_ + "/" + hardware_interface::HW_IF_VELOCITY);
   config.names.push_back(rear_left_wheel_name_ + "/" + hardware_interface::HW_IF_POSITION);
+  config.names.push_back(rear_left_wheel_name_ + "/" + hardware_interface::HW_IF_VELOCITY);
   config.names.push_back(rear_right_wheel_name_ + "/" + hardware_interface::HW_IF_POSITION);
+  config.names.push_back(rear_right_wheel_name_ + "/" + hardware_interface::HW_IF_VELOCITY);
 
   return config;
 }
 
-// 初始化：声明4个车轮的参数
+// 初始化：仅获取节点，不声明参数（避免重复声明）
 controller_interface::CallbackReturn SimpleDiffDriveController::on_init()
 {
   try
   {
-    auto node = this->get_node();
-
-    // 声明四个车轮的名称参数（默认值与URDF一致）
-    node->declare_parameter("front_left_wheel_name", "front_left_wheel_joint");
-    node->declare_parameter("front_right_wheel_name", "front_right_wheel_joint");
-    node->declare_parameter("rear_left_wheel_name", "rear_left_wheel_joint");
-    node->declare_parameter("rear_right_wheel_name", "rear_right_wheel_joint");
-
-    // 车辆核心参数
-    node->declare_parameter("wheel_separation", 0.3);  // 左右轮间距（与URDF一致）
-    node->declare_parameter("wheelbase", 0.4);         // 前后轮距（与URDF一致）
-    node->declare_parameter("wheel_radius", 0.1);      // 车轮半径（与URDF一致）
-    node->declare_parameter("max_velocity", 10.0);     // 最大车轮速度
+    auto node = this->get_node();  // 仅获取节点指针，参数在 controller.yaml 中配置
   }
   catch (const std::exception & e)
   {
@@ -67,11 +60,16 @@ controller_interface::CallbackReturn SimpleDiffDriveController::on_init()
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-// 配置：读取参数并创建订阅者
+// 配置：读取所有参数（包括车轮名称）并创建订阅者
 controller_interface::CallbackReturn SimpleDiffDriveController::on_configure(const rclcpp_lifecycle::State & /*previous_state*/)
 {
   auto node = this->get_node();
 
+  // 修复：读取四个车轮名称参数（之前遗漏）
+  front_left_wheel_name_ = node->get_parameter("front_left_wheel_name").as_string();
+  front_right_wheel_name_ = node->get_parameter("front_right_wheel_name").as_string();
+  rear_left_wheel_name_ = node->get_parameter("rear_left_wheel_name").as_string();
+  rear_right_wheel_name_ = node->get_parameter("rear_right_wheel_name").as_string();
 
   // 读取车辆参数
   wheel_separation_ = node->get_parameter("wheel_separation").as_double();
@@ -79,10 +77,20 @@ controller_interface::CallbackReturn SimpleDiffDriveController::on_configure(con
   wheel_radius_ = node->get_parameter("wheel_radius").as_double();
   max_velocity_ = node->get_parameter("max_velocity").as_double();
 
+  // 打印配置信息（验证参数读取正确）
+  RCLCPP_INFO(node->get_logger(), "Configuring four-wheel diff drive controller:");
+  RCLCPP_INFO(node->get_logger(), "  Front left wheel: %s", front_left_wheel_name_.c_str());
+  RCLCPP_INFO(node->get_logger(), "  Front right wheel: %s", front_right_wheel_name_.c_str());
+  RCLCPP_INFO(node->get_logger(), "  Rear left wheel: %s", rear_left_wheel_name_.c_str());
+  RCLCPP_INFO(node->get_logger(), "  Rear right wheel: %s", rear_right_wheel_name_.c_str());
+  RCLCPP_INFO(node->get_logger(), "  Wheel separation: %.3f", wheel_separation_);
+  RCLCPP_INFO(node->get_logger(), "  Wheelbase: %.3f", wheelbase_);
+  RCLCPP_INFO(node->get_logger(), "  Wheel radius: %.3f", wheel_radius_);
+  RCLCPP_INFO(node->get_logger(), "  Max wheel velocity: %.3f", max_velocity_);
 
-  // 创建速度命令订阅者（全局话题 /cmd_vel，方便控制）
+  // 创建速度命令订阅者（根据命名空间自动适配，如 /robot1/cmd_vel）
   cmd_vel_sub_ = node->create_subscription<geometry_msgs::msg::Twist>(
-    "cmd_vel", 10,  // 话题名称：/cmd_vel（全局，无需加命名空间）
+    "cmd_vel", 10,
     std::bind(&SimpleDiffDriveController::cmd_vel_callback, this, std::placeholders::_1));
 
   return controller_interface::CallbackReturn::SUCCESS;
@@ -109,7 +117,7 @@ controller_interface::CallbackReturn SimpleDiffDriveController::on_deactivate(co
 }
 
 // 更新：将计算出的速度命令下发到4个车轮
-controller_interface::return_type SimpleDiffDriveController::update(const rclcpp::Time & time, const rclcpp::Duration & period)
+controller_interface::return_type SimpleDiffDriveController::update(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   // 为4个车轮设置速度命令（同侧车轮速度相同）
   for (auto & command_interface : command_interfaces_)

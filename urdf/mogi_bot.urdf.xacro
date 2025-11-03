@@ -20,7 +20,22 @@
   <xacro:property name="wheel_separation" value="0.3" /> <!-- 左右轮间距 -->
   <xacro:property name="wheelbase" value="0.4" />        <!-- 前后轮间距 -->
 
-  <!-- 1. 基准坐标系 -->
+
+
+  <link name="odom">
+      <inertial>
+        <mass value="0.001"/>
+        <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+      </inertial>
+    </link>
+
+    <!-- 新增：odom 到 base_footprint 的固定关节（里程计坐标系关联） -->
+    <joint name="odom_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="odom"/>
+      <child link="base_footprint"/>
+    </joint>
+
   <link name="base_footprint">
     <inertial>
       <mass value="0.001"/>

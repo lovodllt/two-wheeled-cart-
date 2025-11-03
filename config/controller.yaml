@@ -8,3 +8,17 @@ robot1:
       simple_diff_drive_controller: # 控制器名称（与插件注册一致）
         type: simple_diff_drive_controller/SimpleDiffDriveController
 
+  # 四轮控制器参数配置
+  simple_diff_drive_controller:
+    ros__parameters:
+      # 车轮名称（与URDF一致，可省略默认值）
+      front_left_wheel_name: "front_left_wheel_joint"
+      front_right_wheel_name: "front_right_wheel_joint"
+      rear_left_wheel_name: "rear_left_wheel_joint"
+      rear_right_wheel_name: "rear_right_wheel_joint"
+
+      # 车辆参数（与URDF一致）
+      wheel_separation: 0.3
+      wheelbase: 0.4
+      wheel_radius: 0.1
+      max_velocity: 10.0
